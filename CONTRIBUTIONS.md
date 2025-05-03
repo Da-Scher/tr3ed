@@ -1,4 +1,4 @@
-# :tools: Contributing to This Project
+# :hammer_and_wrench: Contributing to This Project
 
 Thank you for contributing! I welcome contributions from everyone. However, to ensure a smooth experience, please follow the stebs below before you start coding!
 
