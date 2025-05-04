@@ -24,3 +24,11 @@ Thank you for contributing! I welcome contributions from everyone. However, to e
 - Reference the issue again using `Fixes #<issue-number>` or `Closes #<issue-number>`.
 - Make sure you mark elements of the **Acceptance Criteria** that are completed. If some or all elements are not completed, tell us why and why you think the PR should go ahead anyway.
 - Make sure that your code follows our coding style.
+
+--
+
+## :necktie: Milestones Formatting
+
+There probably won't be many people who are making milestones. In fact its probably just me. But in case someone wants to help me with it here is what I had in mind. 
+- **The conclusion comes first** You should immediately explain what should be different after the milestone ends. 
+- **Less is More** Do not make sections, do not try to explain logic. Keep it less than 160 words.
