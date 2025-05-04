@@ -10,3 +10,15 @@ ntb* create_buffer(uint8_t* buffer) {
 	new_buffer->buffer = buffer;
 	return new_buffer;
 }
+
+void reap_ntb(ntb* root) {
+	// if root is empty, do nothing
+	if(root == NULL) {
+		return;
+	}
+	// Recursively
+	reap_ntb(root->l);
+	reap_ntb(root->r);
+	free(root);
+	return;
+}
