@@ -25,4 +25,12 @@ typedef struct node_fd {
 **/
 nfd* new_file(int16_t fd, nfd* prev);
 
+/*
+ *
+ *
+ *
+ *
+**/
+void reap_nfd(nfd* head);
+
 #endif
