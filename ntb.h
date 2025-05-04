@@ -25,5 +25,11 @@ typedef struct node_tree_buffer {
 **/
 ntb* create_buffer(uint8_t* buffer);
 
+/*
+ *
+ *
+ *
+**/
+void reap_ntb(ntb* root);
 
 #endif
