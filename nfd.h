@@ -16,4 +16,12 @@ typedef struct node_fd {
 	nfd* prev;
 } nfd
 
+/*
+ *
+ *
+ *
+ *
+**/
+nfd* new_file(int16_t fd);
+
 #endif
