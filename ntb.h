@@ -17,5 +17,13 @@ typedef struct node_tree_buffer {
 	ntb* r;
 } ntb;
 
+/* ntb* create_buffer(uint8_t*) -- create a new line buffer
+ * Arguments:
+ *  uint8_t* buffer -- pointer to a new string buffer. (NULL if the new buffer is empty)
+ *
+ * Returns a new ntb object.
+**/
+ntb* create_buffer(uint8_t* buffer);
+
 
 #endif
