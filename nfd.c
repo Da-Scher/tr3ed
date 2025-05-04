@@ -12,3 +12,11 @@ nfd* create_file(int16_t fd, nfd* prev) {
 	new_file_member->prev = prev;
 	return new_file_member;
 }
+void reap_nfd(nfd* head) {
+	if(head == NULL) {
+		return;
+	}
+	reap_nfd(head->next);
+	free(head);
+	return;
+}
