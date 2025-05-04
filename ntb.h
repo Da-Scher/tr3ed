@@ -25,10 +25,11 @@ typedef struct node_tree_buffer {
 **/
 ntb* create_buffer(uint8_t* buffer);
 
-/*
+/* void reap_ntb(ntb*) -- deletes the entire ntb buffer tree from root up.
+ * Arguments:
+ *  ntb* root -- The root of the tree we are reaping.
  *
- *
- *
+ * No return value.
 **/
 void reap_ntb(ntb* root);
 
