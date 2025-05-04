@@ -12,9 +12,9 @@
 **/
 typedef struct node_fd {
 	int16_t fd;
-	nfd* next;
-	nfd* prev;
-} nfd
+	struct node_fd* next;
+	struct node_fd* prev;
+} nfd;
 
 /* nfd* new_file(int16_t) -- Create a new member of the nfd double-linked list
  * Arguments:

@@ -13,8 +13,8 @@
 **/
 typedef struct node_tree_buffer {
 	uint8_t* buffer;
-	ntb* l;
-	ntb* r;
+	struct node_tree_buffer* l;
+	struct node_tree_buffer* r;
 } ntb;
 
 /* ntb* create_buffer(uint8_t*) -- create a new line buffer

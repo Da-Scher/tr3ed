@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "nfd.h"
+#include "ntb.h"
+
 int32_t main(uint32_t argc, uint8_t **argv) {
-	return 0;
+  return 0;
 }
