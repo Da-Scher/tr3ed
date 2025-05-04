@@ -19,9 +19,10 @@ typedef struct node_fd {
 /* nfd* new_file(int16_t) -- Create a new member of the nfd double-linked list
  * Arguments:
  * int16_t fd -- The file descriptor to be added to the list. 
+ * nfd* prev -- the previous node in line (NULL if this is the first of a new linked list)
  *
  * Returns the new member of the double-linked list.
 **/
-nfd* new_file(int16_t fd);
+nfd* new_file(int16_t fd, nfd* prev);
 
 #endif
