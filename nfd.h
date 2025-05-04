@@ -25,11 +25,11 @@ typedef struct node_fd {
 **/
 nfd* new_file(int16_t fd, nfd* prev);
 
-/*
+/* void reap_nfd(nfd*) -- frees all the memory used by the linked list
+ * Arguments:
+ * nfd* head -- the first member of the doubly-linked list
  *
- *
- *
- *
+ * No return value.
 **/
 void reap_nfd(nfd* head);
 
