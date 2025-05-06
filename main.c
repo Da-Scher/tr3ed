@@ -8,7 +8,11 @@
 
 #include "nfd.h"
 #include "ntb.h"
+#include "init.h"
 
 int32_t main(uint32_t argc, uint8_t **argv) {
+  struct termios* oldt = termios_change_mode(1, NULL);
+  // rest of code here.
+  termios_change_mode(0, oldt);
   return 0;
 }
