@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-
+void input_loop();
 
 #endif
