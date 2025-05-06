@@ -1,8 +1,8 @@
 #include "init.h"
 
-void termios_change_mode(uint8_t to_raw) {
-	static struct termios oldt;
+struct termios* termios_change_mode(uint8_t to_raw, struct termios* oldt) {
 	struct termios newt;
+	if(oldt == NULL) oldt = malloc(sizeof(struct termios));
 	
 // change mode from canonical to raw
 	if(to_raw) {
@@ -15,11 +15,13 @@ void termios_change_mode(uint8_t to_raw) {
 		newt.c_cc[VTIME] = 0;
 
 		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+		return oldt;
 
 	}
 	else {
 		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-
+		return oldt;
 	}
 
 }
+

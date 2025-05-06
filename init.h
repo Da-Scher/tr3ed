@@ -6,11 +6,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-/* void termios_change_mode(uint8_t) -- swap terminal mode from canonical to raw or raw to canonical.
+/* struct termios* termios_change_mode(uint8_t) -- swap terminal mode from canonical to raw or raw to canonical.
  * Arguments:
  * 	uint8_t to_raw -- change the terminal mode to 'raw'.
  * 
- * No return value.
+ * Returns the pointer to the old terminal settings.
 **/
-void termios_change_mode(uint8_t to_raw);
+struct termios* termios_change_mode(uint8_t to_raw);
 #endif

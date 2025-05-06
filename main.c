@@ -11,8 +11,8 @@
 #include "init.h"
 
 int32_t main(uint32_t argc, uint8_t **argv) {
-  termios_change_mode(1);
+  struct termios* oldt = termios_change_mode(1, NULL);
   // rest of code here.
-  termios_change_mode(0);
+  termios_change_mode(0, oldt);
   return 0;
 }
