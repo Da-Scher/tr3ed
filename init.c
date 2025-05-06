@@ -6,10 +6,10 @@ struct termios* termios_change_mode(uint8_t to_raw, struct termios* oldt) {
 	
 // change mode from canonical to raw
 	if(to_raw) {
-		tcgetattr(STDIN_FILENO, &oldt);
-		newt = oldt;
+		tcgetattr(STDIN_FILENO, oldt);
+    memcpy(&newt, oldt, sizeof(struct termios));
 
-		newt.c_lflag &= ~(ICANNON | ECHO);
+		newt.c_lflag &= ~(ICANON | ECHO);
 
 		newt.c_cc[VMIN] = 1;
 		newt.c_cc[VTIME] = 0;
@@ -19,7 +19,7 @@ struct termios* termios_change_mode(uint8_t to_raw, struct termios* oldt) {
 
 	}
 	else {
-		tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+		tcsetattr(STDIN_FILENO, TCSANOW, oldt);
 		return oldt;
 	}
 
