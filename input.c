@@ -3,26 +3,15 @@
 str_buffer sb;
 
 void input_loop() {
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-	// loop forever
-	while(1) {
-=======
 	uint8_t c;
 	memset(sb.string, 0, sizeof(sb.string));
 	sb.size = 0;
 	State state = NORMAL;
 	// loop forever
-=======
-	uint8_t c;
-  State state = NORMAL;
-	// loop forever
->>>>>>> ad95e4558d2ca7299d8e0cf77fd0ed3ba8f54313
 	while(read(STDIN_FILENO, &c, 1) == 1) {
 		switch(state) {
 			case NORMAL:
 				if(c=='\x1b') state = ESC;
-<<<<<<< HEAD
 				else if(c=='\x0a') {
 					int result = process_line(sb.string);
 					if(result == 0) {
@@ -41,10 +30,6 @@ void input_loop() {
 					sb.string[sb.size++] = c;
 
 				}
-=======
-				else if(c=='q') return;
-				else write(STDOUT_FILENO, &c, 1);
->>>>>>> ad95e4558d2ca7299d8e0cf77fd0ed3ba8f54313
 				break;
 			case ESC:
 				if(c=='[') state = ESC_BRACKET;
@@ -57,18 +42,9 @@ void input_loop() {
 				else if(c=='D') printf("Insert arrow-left code here.\n");
 				state = NORMAL;
 				break;
-<<<<<<< HEAD
->>>>>>> Stashed changes
-=======
->>>>>>> ad95e4558d2ca7299d8e0cf77fd0ed3ba8f54313
-
 		}
 	}
 }
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
-
 
 int16_t process_line(uint8_t* line) {
 	State_Process process_state = NONE;
@@ -81,7 +57,3 @@ int16_t process_line(uint8_t* line) {
 	}
 	return 1;
 }
->>>>>>> Stashed changes
-=======
-
->>>>>>> ad95e4558d2ca7299d8e0cf77fd0ed3ba8f54313
