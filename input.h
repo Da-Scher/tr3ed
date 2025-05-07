@@ -3,7 +3,31 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+<<<<<<< Updated upstream
+=======
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+
+typedef struct string_buffer {
+	uint8_t string[256];
+	size_t  size;
+} str_buffer;
+
+
+typedef enum {
+  NORMAL,
+  ESC,
+  ESC_BRACKET
+} State;
+>>>>>>> Stashed changes
+
+typedef enum {
+	NONE,
+	WRITE
+} State_Process;
 
 void input_loop();
+int16_t process_line(uint8_t* line);
 
 #endif
