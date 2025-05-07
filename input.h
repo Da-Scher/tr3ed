@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-<<<<<<< Updated upstream
-=======
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -14,13 +12,11 @@ typedef struct string_buffer {
 	size_t  size;
 } str_buffer;
 
-
 typedef enum {
   NORMAL,
   ESC,
   ESC_BRACKET
 } State;
->>>>>>> Stashed changes
 
 typedef enum {
 	NONE,
