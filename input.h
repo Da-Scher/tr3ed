@@ -12,6 +12,13 @@ typedef struct string_buffer {
 	size_t  size;
 } str_buffer;
 
+typedef struct command_history {
+	uint8_t string[256];
+	size_t size;
+	struct command_history* next;
+	struct command_history* prev;
+} cmd_hist;
+
 typedef enum {
   NORMAL,
   ESC,
@@ -24,6 +31,8 @@ typedef enum {
 } State_Process;
 
 void input_loop();
-int16_t process_line(uint8_t* line);
+int16_t process_line(str_buffer* sb);
+cmd_hist* add_command_to_history(str_buffer* sb, cmd_hist* ch);
+void clear_line(str_buffer* sb);
 
 #endif
