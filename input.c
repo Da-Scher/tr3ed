@@ -31,6 +31,7 @@ void input_loop() {
 				else {
 					write(STDOUT_FILENO, &c, 1);
 					sb->string[sb->size++] = c;
+					sb->cursor_position++;
 
 				}
 				break;
@@ -64,10 +65,12 @@ void input_loop() {
 					}
 				}
 				else if(c=='C') {
-					printf("Insert arrow-right code here.\n");
+					//printf("Insert arrow-right code here.\n");
+					move_cursor(sb, 1);
 				}
 				else if(c=='D') {
-					printf("Insert arrow-left code here.\n");
+					//printf("Insert arrow-left code here.\n");
+					move_cursor(sb, -1);
 				}
 				state = NORMAL;
 				break;
@@ -116,4 +119,17 @@ void clear_line(str_buffer* sb) {
 	write(STDOUT_FILENO, "\x1b[2K\x1b[1G", 8);
 	memset(sb->string, 0, sb->size);
 	sb->size = 0;
+}
+
+void move_cursor(str_buffer* sb, int8_t d) {
+	if(d < 0 && sb->cursor_position > 0) {
+		// move one to the left
+		write(STDOUT_FILENO, "\x1b[1D", 4);
+		sb->cursor_position--;
+	}
+	else if(d >= 0 && sb->cursor_position < sb->size) {
+		// move one to the right
+		write(STDOUT_FILENO, "\x1b[1C", 4);
+		sb->cursor_position++;
+	}
 }
