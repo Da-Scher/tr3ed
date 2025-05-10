@@ -1,6 +1,7 @@
 #include "input.h"
+#include "init.h"
 
-void input_loop() {
+void input_loop(nfd* fd) {
 	str_buffer* sb = malloc(sizeof(str_buffer));
 	uint8_t c;
 	sb->string = calloc(8, sizeof(uint8_t));
@@ -100,12 +101,20 @@ void input_loop() {
 				}
 				state = NORMAL;
 				break;
+			case EDIT_APPEND:
+				write(STDOUT_FILENO, "append edit code here...\n", 25);
+				break;
+			case EDIT_INSERT:
+				break;
+				
 		}
 	}
 }
 
-int16_t process_line(str_buffer* sb) {
+State process_line(str_buffer* sb) {
 	State_Process process_state = NONE;
+	// why loop here? because in `ed` there should be support for common
+	// command sequences, like 'wq', or 'id' for insert at, delete other line. etc
 	for(int i = 0; i < sb->size; i++) {
 		if(sb->string[i] == 'q') {
 			// clear sb->string, set sb->size to 0
@@ -113,13 +122,21 @@ int16_t process_line(str_buffer* sb) {
 			sb->size = 0;
 			sb->cursor_position = 0;
 			if(process_state == NONE || process_state == WRITE) return 0;
-			else return -1;
+			else return BAD;
+		}
+		else if(sb->string[i] == 'a') {
+			if(process_state == NONE || process_state == WRITE) return EDIT_APPEND;
+			else return BAD;
+		}
+		else if(sb->string[i] == 'i') {
+			if(process_state == NONE || process_state == WRITE) return EDIT_INSERT;
+			else return BAD;
 		}
 		else {
 			memset(sb->string, 0, sb->size);
 			sb->size = 0;
 			sb->cursor_position = 0;
-			return -1;
+			return BAD;
 		}
 	}
 	return 1;
@@ -161,5 +178,23 @@ void move_cursor(str_buffer* sb, int8_t d) {
 		// move one to the right
 		write(STDOUT_FILENO, "\x1b[1C", 4);
 		sb->cursor_position++;
+	}
+}
+
+void append_to_line(nfd* fd, str_buffer* sb) {
+	uint8_t c;
+	while((read(STDIN_FILENO, &c, 1) == 1) {
+		switch(c) {
+			case '\x0a':
+				write(STDOUT_FILENO, &c, 1);
+				// create node on buffer tree
+				create_buffer(sb);
+				
+				clear_line(sb);
+				break;
+			default:
+				write(STDOUT_FILENO, &c, 1);
+				break;
+		}
 	}
 }
