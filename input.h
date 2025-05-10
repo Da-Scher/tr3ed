@@ -13,9 +13,10 @@ typedef struct string_buffer {
 } str_buffer;
 
 typedef enum {
-  NORMAL,
-  ESC,
-  ESC_BRACKET
+	NORMAL,
+	ESC,
+	ESC_BRACKET,
+	EDIT
 } State;
 
 typedef enum {
