@@ -7,13 +7,12 @@
 #include <stdint.h>
 
 #include "nfd.h"
-#include "ntb.h"
 #include "init.h"
 #include "input.h"
 
 int32_t main(uint32_t argc, uint8_t **argv) {
   struct termios* oldt = termios_change_mode(1, NULL);
-  nfd* fd = new_file(STDOUT_FILENO, NULL);
+  nfd* fd = create_file(STDOUT_FILENO, NULL);
   // rest of code here.
   input_loop(fd);
   termios_change_mode(0, oldt);

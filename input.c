@@ -183,7 +183,7 @@ void move_cursor(str_buffer* sb, int8_t d) {
 
 void append_to_line(nfd* fd, str_buffer* sb) {
 	uint8_t c;
-	while((read(STDIN_FILENO, &c, 1) == 1) {
+	while((read(STDIN_FILENO, &c, 1)) == 1) {
 		switch(c) {
 			case '\x0a':
 				write(STDOUT_FILENO, &c, 1);

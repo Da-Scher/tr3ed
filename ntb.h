@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "input.h"
+#include "string_buffer.h"
 
 /* typedef struct node_tree_buffer ntb
  * Members

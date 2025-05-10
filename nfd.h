@@ -23,7 +23,7 @@ typedef struct node_fd {
  *
  * Returns the new member of the double-linked list.
 **/
-nfd* new_file(int16_t fd, nfd* prev);
+nfd* create_file(int16_t fd, nfd* prev);
 
 /* void reap_nfd(nfd*) -- frees all the memory used by the linked list
  * Arguments:
