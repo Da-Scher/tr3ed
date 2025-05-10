@@ -8,12 +8,14 @@
 #include <string.h>
 
 typedef struct string_buffer {
-	uint8_t string[256];
+	uint8_t* string;
 	size_t  size;
+	size_t  cursor_position;
+	size_t  array_size;
 } str_buffer;
 
 typedef struct command_history {
-	uint8_t string[256];
+	uint8_t* string;
 	size_t size;
 	struct command_history* next;
 	struct command_history* prev;
@@ -34,5 +36,6 @@ void input_loop();
 int16_t process_line(str_buffer* sb);
 cmd_hist* add_command_to_history(str_buffer* sb, cmd_hist* ch);
 void clear_line(str_buffer* sb);
+void move_cursor(str_buffer* sb, int8_t d);
 
 #endif
