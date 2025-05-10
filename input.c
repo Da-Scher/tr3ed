@@ -3,15 +3,19 @@
 void input_loop() {
 	str_buffer* sb = malloc(sizeof(str_buffer));
 	uint8_t c;
-	memset(sb->string, 0, sizeof(sb->string));
+	sb->string = calloc(8, sizeof(uint8_t));
+	sb->array_size = 8;
 	sb->size = 0;
+	sb->cursor_position = 0;
 	State state = NORMAL;
 	cmd_hist* ch = NULL;
 	// loop forever
 	while(read(STDIN_FILENO, &c, 1) == 1) {
 		switch(state) {
 			case NORMAL:
+				// detected an escape key
 				if(c=='\x1b') state = ESC;
+				// detected an enter key
 				else if(c=='\x0a') {
 					write(STDOUT_FILENO, &c, 1);
 					// add the line to the command history
@@ -24,14 +28,35 @@ void input_loop() {
 						write(STDOUT_FILENO, "?\n", 3);
 					}
 					else {
-						memset(sb->string, 0, sizeof(sb->string));
+						memset(sb->string, 0, sb->size);
 
 					}
 				}
+				// detected a backspace key
+				else if(c=='\x7f') {
+					write(STDOUT_FILENO, "\x1b[D\x1b[P", 6);
+					if(sb->cursor_position > 0) {
+						memmove(sb->string + sb->cursor_position - 1, sb->string + sb->cursor_position, sb->size - sb->cursor_position);
+						sb->size--;
+						sb->cursor_position--;
+					}
+				}
+				// detected a regular key
 				else {
+					if(sb->cursor_position == sb->array_size) {
+						uint8_t* cache = malloc(sizeof(uint8_t) * sb->size + 1);
+						memcpy(cache, sb->string, sb->size);
+						memmove(cache + sb->cursor_position, cache + sb->cursor_position - 1, sb->size + 1 - sb->cursor_position);
+						free(sb->string);
+						sb->string = cache;
+					}
+					else {
+						memmove(sb->string + sb->cursor_position, sb->string + sb->cursor_position - 1, sb->size-sb->cursor_position+1);
+					}
+					sb->string[sb->cursor_position++] = c;
+					sb->size++;
+					sb->array_size++;
 					write(STDOUT_FILENO, &c, 1);
-					sb->string[sb->size++] = c;
-					sb->cursor_position++;
 
 				}
 				break;
@@ -47,6 +72,7 @@ void input_loop() {
 						clear_line(sb);
 						memcpy(sb->string, ch->string, ch->size);
 						sb->size = ch->size;
+						sb->cursor_position = ch->size;
 						write(STDOUT_FILENO, sb->string, sb->size);
 						if(ch->prev != NULL) ch = ch->prev;
 					}
@@ -85,12 +111,14 @@ int16_t process_line(str_buffer* sb) {
 			// clear sb->string, set sb->size to 0
 			memset(sb->string, 0, sb->size);
 			sb->size = 0;
+			sb->cursor_position = 0;
 			if(process_state == NONE || process_state == WRITE) return 0;
 			else return -1;
 		}
 		else {
 			memset(sb->string, 0, sb->size);
 			sb->size = 0;
+			sb->cursor_position = 0;
 			return -1;
 		}
 	}
@@ -107,7 +135,8 @@ cmd_hist* add_command_to_history(str_buffer* sb, cmd_hist* ch) {
 	}
 	// create a command history entry
 	curr = malloc(sizeof(cmd_hist));
-	memcpy(curr->string, sb->string, 256);
+	curr->string = malloc(sizeof(uint8_t)*sb->array_size);
+	memcpy(curr->string, sb->string, sb->array_size);
 	curr->size = sb->size;
 	curr->prev = prev;
 	if(prev != NULL) prev->next = curr;
@@ -119,6 +148,7 @@ void clear_line(str_buffer* sb) {
 	write(STDOUT_FILENO, "\x1b[2K\x1b[1G", 8);
 	memset(sb->string, 0, sb->size);
 	sb->size = 0;
+	sb->cursor_position = 0;
 }
 
 void move_cursor(str_buffer* sb, int8_t d) {
