@@ -7,7 +7,8 @@ ntb* create_buffer(str_buffer* sb) {
 	}
 	// make a buffer with an initial buffer
 	ntb* new_buffer = malloc(sizeof(ntb));
-	new_buffer->buffer = sb->string;
+	new_buffer->buffer = malloc(sizeof(uint8_t)*sb->size);
+	new_buffer->buffer = memcpy(new_buffer->buffer, sb->string, sb->size);
 	new_buffer->line = sb->line_position;
 	new_buffer->l = NULL;
 	new_buffer->r = NULL;

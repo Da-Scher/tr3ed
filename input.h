@@ -24,13 +24,20 @@ typedef enum {
 	ESC_BRACKET,
 	EDIT_APPEND,
 	EDIT_INSERT,
-	BAD
+	BAD,
+	QUIT
 } State;
 
 typedef enum {
 	NONE,
 	WRITE
 } State_Process;
+
+typedef enum {
+	NORMAL_EDIT,
+	WRITE_EDIT
+} Edit_State;
+	
 
 void input_loop(nfd* nfd);
 State process_line(str_buffer* sb);
