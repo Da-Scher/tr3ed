@@ -1,6 +1,7 @@
 #include "input.h"
+#include "init.h"
 
-void input_loop() {
+void input_loop(nfd* fd) {
 	str_buffer* sb = malloc(sizeof(str_buffer));
 	uint8_t c;
 	sb->string = calloc(8, sizeof(uint8_t));
@@ -20,12 +21,20 @@ void input_loop() {
 					write(STDOUT_FILENO, &c, 1);
 					// add the line to the command history
 					ch = add_command_to_history(sb, ch);
-					int result = process_line(sb);
-					if(result == 0) {
+					State result = process_line(sb);
+					if(result == QUIT) {
 						return;
 					}
-					else if(result == -1) {
+					else if(result == BAD) {
 						write(STDOUT_FILENO, "?\n", 3);
+					}
+					else if(result == EDIT_APPEND) {
+						clear_line(sb);
+						add_edit(fd, sb, 1);
+					}
+					else if(result == EDIT_INSERT) {
+						clear_line(sb);
+						add_edit(fd, sb, 0);
 					}
 					else {
 						memset(sb->string, 0, sb->size);
@@ -104,25 +113,35 @@ void input_loop() {
 	}
 }
 
-int16_t process_line(str_buffer* sb) {
+State process_line(str_buffer* sb) {
 	State_Process process_state = NONE;
+	// why loop here? because in `ed` there should be support for common
+	// command sequences, like 'wq', or 'id' for insert at, delete other line. etc
 	for(int i = 0; i < sb->size; i++) {
 		if(sb->string[i] == 'q') {
 			// clear sb->string, set sb->size to 0
 			memset(sb->string, 0, sb->size);
 			sb->size = 0;
 			sb->cursor_position = 0;
-			if(process_state == NONE || process_state == WRITE) return 0;
-			else return -1;
+			if(process_state == NONE || process_state == WRITE) return QUIT;
+			else return BAD;
+		}
+		else if(sb->string[i] == 'a') {
+			if(process_state == NONE || process_state == WRITE) return EDIT_APPEND;
+			else return BAD;
+		}
+		else if(sb->string[i] == 'i') {
+			if(process_state == NONE || process_state == WRITE) return EDIT_INSERT;
+			else return BAD;
 		}
 		else {
 			memset(sb->string, 0, sb->size);
 			sb->size = 0;
 			sb->cursor_position = 0;
-			return -1;
+			return BAD;
 		}
 	}
-	return 1;
+	return NORMAL;
 }
 
 cmd_hist* add_command_to_history(str_buffer* sb, cmd_hist* ch) {
@@ -161,5 +180,45 @@ void move_cursor(str_buffer* sb, int8_t d) {
 		// move one to the right
 		write(STDOUT_FILENO, "\x1b[1C", 4);
 		sb->cursor_position++;
+	}
+}
+
+void add_edit(nfd* fd, str_buffer* sb, uint8_t append) {
+	uint8_t c;
+	Edit_State edit_state = NORMAL_EDIT;
+	if(append == 1) sb->line_position += 1;
+	while((read(STDIN_FILENO, &c, 1)) == 1) {
+		switch(c) {
+			case '\x0a':
+				if(edit_state == WRITE_EDIT) {
+					return;
+				}
+				write(STDOUT_FILENO, &c, 1);
+				// create node on buffer tree
+				ntb* tb = create_buffer(sb);
+				if(fd->buffer_tree == NULL) fd->buffer_tree = tb;
+				else insert_buffer(fd->buffer_tree, tb);
+				sb->line_position++;
+				clear_line(sb);
+				break;
+			case '.':
+				write(STDOUT_FILENO, &c, 1);
+				if(sb->cursor_position == 0) {
+					return;
+				}
+				sb->string[sb->cursor_position++] = c;
+				sb->size++;
+				break;
+			default:
+				// if c is a character
+				if(c >= 32 && c < 127) {
+					memmove(sb->string + sb->cursor_position, sb->string + sb->cursor_position - 1, sb->size-sb->cursor_position+1);
+					write(STDOUT_FILENO, &c, 1);
+					sb->string[sb->cursor_position++] = c;
+					sb->size++;
+				}
+				edit_state = NORMAL_EDIT;
+				break;
+		}
 	}
 }

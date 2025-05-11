@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+
+#include "string_buffer.h"
 
 /* typedef struct node_tree_buffer ntb
  * Members
@@ -15,6 +18,7 @@ typedef struct node_tree_buffer {
 	uint8_t* buffer;
 	struct node_tree_buffer* l;
 	struct node_tree_buffer* r;
+	size_t line;
 } ntb;
 
 /* ntb* create_buffer(uint8_t*) -- create a new line buffer
@@ -23,7 +27,7 @@ typedef struct node_tree_buffer {
  *
  * Returns a new ntb object.
 **/
-ntb* create_buffer(uint8_t* buffer);
+ntb* create_buffer(str_buffer* sb);
 
 /* void reap_ntb(ntb*) -- deletes the entire ntb buffer tree from root up.
  * Arguments:
@@ -33,4 +37,5 @@ ntb* create_buffer(uint8_t* buffer);
 **/
 void reap_ntb(ntb* root);
 
+void insert_buffer(ntb* root, ntb* buffer);
 #endif
