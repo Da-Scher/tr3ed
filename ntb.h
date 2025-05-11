@@ -16,6 +16,7 @@
 **/
 typedef struct node_tree_buffer {
 	uint8_t* buffer;
+	int8_t d;
 	struct node_tree_buffer* l;
 	struct node_tree_buffer* r;
 	size_t line;
