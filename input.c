@@ -36,6 +36,10 @@ void input_loop(nfd* fd) {
 						clear_line(sb);
 						add_edit(fd, sb, 0);
 					}
+					else if(result == DELETE_LINE) {
+						clear_line(sb);
+						delete_line(fd, sb->line_position);
+					}
 					else {
 						memset(sb->string, 0, sb->size);
 
@@ -126,12 +130,19 @@ State process_line(str_buffer* sb) {
 			if(process_state == NONE || process_state == WRITE) return QUIT;
 			else return BAD;
 		}
+		else if(sb->string[i] == 'd') {
+			return DELETE_LINE;
+		}
 		else if(sb->string[i] == 'a') {
 			if(process_state == NONE || process_state == WRITE) return EDIT_APPEND;
 			else return BAD;
 		}
 		else if(sb->string[i] == 'i') {
 			if(process_state == NONE || process_state == WRITE) return EDIT_INSERT;
+			else return BAD;
+		}
+		else if(sb->string[i] == 'd') {
+			if(process_state == NONE) return DELETE_LINE;
 			else return BAD;
 		}
 		else {
@@ -220,5 +231,27 @@ void add_edit(nfd* fd, str_buffer* sb, uint8_t append) {
 				edit_state = NORMAL_EDIT;
 				break;
 		}
+	}
+}
+
+void delete_line(nfd* fd, uint8_t line) {
+	if(fd->buffer_tree == NULL) return;
+	ntb* curr = fd->buffer_tree;
+	ntb* next;
+	if(curr->line > line) {
+		next = curr->l;
+	}
+	else if(curr->line < line) {
+		next = curr->r;
+	}
+	else if(curr->line == line) {
+		// delete all l children
+		delete_rope(curr->l);
+		// flag for deletion
+		curr->d = 1;
+		return;
+	}
+	while(next != NULL) {
+		next = curr->line > line ? curr->r : curr->r;
 	}
 }

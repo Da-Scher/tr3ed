@@ -16,6 +16,7 @@
 **/
 typedef struct node_tree_buffer {
 	uint8_t* buffer;
+	int8_t d;
 	struct node_tree_buffer* l;
 	struct node_tree_buffer* r;
 	size_t line;
@@ -38,4 +39,6 @@ ntb* create_buffer(str_buffer* sb);
 void reap_ntb(ntb* root);
 
 void insert_buffer(ntb* root, ntb* buffer);
+
+void delete_rope(ntb* tb);
 #endif

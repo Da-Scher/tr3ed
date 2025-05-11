@@ -37,3 +37,9 @@ void insert_buffer(ntb* root, ntb* buffer) {
 		else insert_buffer(root->r, buffer);
 	}
 }
+
+void delete_rope(ntb* tb) {
+	if(tb == NULL) return;
+	delete_rope(tb->l);
+	free(tb);
+}
