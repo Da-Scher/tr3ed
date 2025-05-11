@@ -39,4 +39,6 @@ ntb* create_buffer(str_buffer* sb);
 void reap_ntb(ntb* root);
 
 void insert_buffer(ntb* root, ntb* buffer);
+
+void delete_rope(ntb* tb);
 #endif

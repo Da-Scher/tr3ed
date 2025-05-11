@@ -246,7 +246,7 @@ void delete_line(nfd* fd, uint8_t line) {
 	}
 	else if(curr->line == line) {
 		// delete all l children
-		delete_rope(curr);
+		delete_rope(curr->l);
 		// flag for deletion
 		curr->d = 1;
 		return;
