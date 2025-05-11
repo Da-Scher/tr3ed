@@ -29,7 +29,12 @@ void input_loop(nfd* fd) {
 						write(STDOUT_FILENO, "?\n", 3);
 					}
 					else if(result == EDIT_APPEND) {
-						append_to_line(fd, sb);
+						clear_line(sb);
+						add_edit(fd, sb, 1);
+					}
+					else if(result == EDIT_INSERT) {
+						clear_line(sb);
+						add_edit(fd, sb, 0);
 					}
 					else {
 						memset(sb->string, 0, sb->size);
@@ -104,12 +109,6 @@ void input_loop(nfd* fd) {
 				}
 				state = NORMAL;
 				break;
-			case EDIT_APPEND:
-				append_to_line(fd, sb);
-				break;
-			case EDIT_INSERT:
-				break;
-				
 		}
 	}
 }
@@ -184,9 +183,10 @@ void move_cursor(str_buffer* sb, int8_t d) {
 	}
 }
 
-void append_to_line(nfd* fd, str_buffer* sb) {
+void add_edit(nfd* fd, str_buffer* sb, uint8_t append) {
 	uint8_t c;
 	Edit_State edit_state = NORMAL_EDIT;
+	if(append == 1) sb->line_position += 1;
 	while((read(STDIN_FILENO, &c, 1)) == 1) {
 		switch(c) {
 			case '\x0a':

@@ -44,6 +44,6 @@ State process_line(str_buffer* sb);
 cmd_hist* add_command_to_history(str_buffer* sb, cmd_hist* ch);
 void clear_line(str_buffer* sb);
 void move_cursor(str_buffer* sb, int8_t d);
-void append_to_line(nfd* fd, str_buffer* sb);
+void add_edit(nfd* fd, str_buffer* sb, uint8_t append);
 
 #endif
