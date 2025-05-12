@@ -22,6 +22,7 @@ void input_loop(nfd* fd) {
 					// add the line to the command history
 					ch = add_command_to_history(sb, ch);
 					State result = process_line(sb);
+					clear_line(sb);
 					if(result == QUIT) {
 						return;
 					}
@@ -30,11 +31,11 @@ void input_loop(nfd* fd) {
 					}
 					else if(result == EDIT_APPEND) {
 						clear_line(sb);
-						add_edit(fd, sb, 1);
+						add_edit(fd, sb, 1, sb->line_position);
 					}
 					else if(result == EDIT_INSERT) {
 						clear_line(sb);
-						add_edit(fd, sb, 0);
+						add_edit(fd, sb, 0, sb->line_position);
 					}
 					else if(result == DELETE_LINE) {
 						clear_line(sb);
@@ -114,45 +115,68 @@ void input_loop(nfd* fd) {
 				state = NORMAL;
 				break;
 		}
-	}
+	}	
 }
 
 State process_line(str_buffer* sb) {
 	State_Process process_state = NONE;
+	State return_state = NORMAL;
+	uint8_t d2, d1;
+	uint8_t c;
+	uint8_t s[100];
+	uint8_t leftover[100];
+	
 	// why loop here? because in `ed` there should be support for common
 	// command sequences, like 'wq', or 'id' for insert at, delete other line. etc
-	for(int i = 0; i < sb->size; i++) {
-		if(sb->string[i] == 'q') {
-			// clear sb->string, set sb->size to 0
-			memset(sb->string, 0, sb->size);
-			sb->size = 0;
-			sb->cursor_position = 0;
-			if(process_state == NONE || process_state == WRITE) return QUIT;
-			else return BAD;
+	// change current line
+	if(sscanf(sb->string, "%d%99[^\n]", &d2, leftover) == 1) {
+		sb->line_position = d2;
+		return NORMAL;
+	}
+	else if(sscanf(sb->string, "%d,%d%99s%99[^\n]", &d1, &d2, s, leftover) == 3) {
+		return_state = check_state(s);
+		if(return_state == BAD) return BAD;
+		else sb->line_position = d2;
+		return return_state;
+	}
+	else if(sscanf(sb->string, "%d%99s%99[^\n]", &d2, s, leftover) == 2) {
+		// check validity of string
+		return_state = check_state(s);
+		if(return_state == BAD) return BAD;
+		else sb->line_position = d2;
+		return return_state;
+	}
+	else if(sscanf(sb->string, "%99s%99[^\n]", s, leftover) == 1) {
+		return check_state(s);
+	}
+	
+}
+State check_state(uint8_t* string) {
+	State return_state = NORMAL;
+	State_Process process_state = NONE;
+	ssize_t len = strlen(string);
+	for(int i = 0; i < len; i++) {
+		if(string[i] == 'q') {
+			if(process_state == NONE || process_state == WRITE) return_state = QUIT;
+			else return_state = BAD;
 		}
-		else if(sb->string[i] == 'd') {
-			return DELETE_LINE;
+		else if(string[i] == 'd') {
+			return_state = DELETE_LINE;
 		}
-		else if(sb->string[i] == 'a') {
-			if(process_state == NONE || process_state == WRITE) return EDIT_APPEND;
-			else return BAD;
+		else if(string[i] == 'a') {
+			if(process_state == NONE || process_state == WRITE) return_state = EDIT_APPEND;
+			else return_state = BAD;
 		}
-		else if(sb->string[i] == 'i') {
-			if(process_state == NONE || process_state == WRITE) return EDIT_INSERT;
-			else return BAD;
+		else if(string[i] == 'i') {
+			if(process_state == NONE || process_state == WRITE) return_state = EDIT_INSERT;
+			else return_state = BAD;
 		}
-		else if(sb->string[i] == 'd') {
-			if(process_state == NONE) return DELETE_LINE;
-			else return BAD;
-		}
-		else {
-			memset(sb->string, 0, sb->size);
-			sb->size = 0;
-			sb->cursor_position = 0;
-			return BAD;
+		else if(string[i] == 'd') {
+			if(process_state == NONE) return_state = DELETE_LINE;
+			else return_state = BAD;
 		}
 	}
-	return NORMAL;
+	return return_state;
 }
 
 cmd_hist* add_command_to_history(str_buffer* sb, cmd_hist* ch) {
@@ -194,7 +218,7 @@ void move_cursor(str_buffer* sb, int8_t d) {
 	}
 }
 
-void add_edit(nfd* fd, str_buffer* sb, uint8_t append) {
+void add_edit(nfd* fd, str_buffer* sb, uint8_t append, uint8_t line) {
 	uint8_t c;
 	Edit_State edit_state = NORMAL_EDIT;
 	if(append == 1) sb->line_position += 1;
