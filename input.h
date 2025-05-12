@@ -10,6 +10,7 @@
 #include "nfd.h"
 #include "ntb.h"
 #include "init.h"
+#include "string_buffer.h"
 
 typedef struct command_history {
 	uint8_t* string;

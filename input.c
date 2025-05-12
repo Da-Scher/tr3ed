@@ -55,21 +55,9 @@ void input_loop(nfd* fd) {
 					break;
 					// detected a regular key
 					default:
-						if(sb->cursor_position == sb->array_size) {
-							uint8_t* cache = malloc(sizeof(uint8_t) * sb->size + 1);
-							memcpy(cache, sb->string, sb->size);
-							memmove(cache + sb->cursor_position, cache + sb->cursor_position - 1, sb->size + 1 - sb->cursor_position);
-							free(sb->string);
-							sb->string = cache;
+						if(add_to_str_buffer(c, sb) == 1) {
+							write(STDOUT_FILENO, &c, 1);
 						}
-						else {
-							memmove(sb->string + sb->cursor_position, sb->string + sb->cursor_position - 1, sb->size-sb->cursor_position+1);
-						}
-						sb->string[sb->cursor_position++] = c;
-						sb->size++;
-						sb->array_size++;
-						write(STDOUT_FILENO, &c, 1);
-
 					break;
 				}
 				break;
@@ -78,6 +66,7 @@ void input_loop(nfd* fd) {
 				else state = NORMAL;
 				break;
 			case ESC_BRACKET:
+				clear_line(sb);
 				switch(c) {
 				case 'A':
 					// printf("Insert arrow-up code here.\n");
@@ -113,9 +102,9 @@ void input_loop(nfd* fd) {
 					move_cursor(sb, -1);
 				break;
 				default:
-					state = NORMAL;
 				break;
 			}
+			state = NORMAL;
 			break;
 		}
 	}
