@@ -115,7 +115,7 @@ void input_loop(nfd* fd) {
 				state = NORMAL;
 				break;
 		}
-	}
+	}	
 }
 
 State process_line(str_buffer* sb) {
@@ -132,6 +132,12 @@ State process_line(str_buffer* sb) {
 	if(sscanf(sb->string, "%d%99[^\n]", &d2, leftover) == 1) {
 		sb->line_position = d2;
 		return NORMAL;
+	}
+	else if(sscanf(sb->string, "%d,%d%99s%99[^\n]", &d1, &d2, s, leftover) == 3) {
+		return_state = check_state(s);
+		if(return_state == BAD) return BAD;
+		else sb->line_position = d2;
+		return return_state;
 	}
 	else if(sscanf(sb->string, "%d%99s%99[^\n]", &d2, s, leftover) == 2) {
 		// check validity of string
