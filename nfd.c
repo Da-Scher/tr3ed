@@ -10,6 +10,7 @@ nfd* create_file(int16_t fd, nfd* prev) {
 	new_file_member->fd  = fd;
 	new_file_member->next = NULL;
 	new_file_member->prev = prev;
+	new_file_member->buffer_tree = NULL;
 	return new_file_member;
 }
 void reap_nfd(nfd* head) {
