@@ -69,36 +69,15 @@ void input_loop(nfd* fd) {
 				clear_line(sb);
 				switch(c) {
 				case 'A':
-					// printf("Insert arrow-up code here.\n");
-					// TODO: remember the non-inputted buffer so that we can use it again if necessary.
-					if(ch != NULL) {
-						clear_line(sb);
-						memcpy(sb->string, ch->string, ch->size);
-						sb->size = ch->size;
-						sb->cursor_position = ch->size;
-						write(STDOUT_FILENO, sb->string, sb->size);
-						if(ch->prev != NULL) ch = ch->prev;
-					}
+					ch = move_history_pointer(ch, sb, 1);
 				break;
 				case 'B':
-					//printf("Insert arrow-down code here.\n");
-					if(ch->next != NULL) {
-						ch = ch->next;
-						clear_line(sb);
-						memcpy(sb->string, ch->string, ch->size);
-						sb->size = ch->size;
-						write(STDOUT_FILENO, sb->string, sb->size);
-					}
-					else if(ch == NULL) {
-						clear_line(sb);
-					}
+					ch = move_history_pointer(ch, sb, 0);
 				break;
 				case 'C':
-					//printf("Insert arrow-right code here.\n");
 					move_cursor(sb, 1);
 				break;
 				case 'D':
-					//printf("Insert arrow-left code here.\n");
 					move_cursor(sb, -1);
 				break;
 				default:
@@ -117,10 +96,6 @@ State process_line(str_buffer* sb) {
 	uint8_t c;
 	uint8_t s[100];
 	uint8_t leftover[100];
-	
-	// why loop here? because in `ed` there should be support for common
-	// command sequences, like 'wq', or 'id' for insert at, delete other line. etc
-	// change current line
 	if(sscanf(sb->string, "%d%99[^\n]", &d2, leftover) == 1) {
 		sb->line_position = d2;
 		return NORMAL;
@@ -270,4 +245,28 @@ void delete_line(nfd* fd, uint8_t line) {
 	while(next != NULL) {
 		next = curr->line > line ? curr->r : curr->r;
 	}
+}
+
+cmd_hist* move_history_pointer(cmd_hist* ch, str_buffer* sb, uint8_t up) {
+	// TODO: remember the non-inputted buffer so that we can use it again if necessary.
+	clear_line(sb);
+	if(ch != NULL) {
+		switch(up) {
+			case 1:
+				memcpy(sb->string, ch->string, ch->size);
+				sb->size = ch->size;
+				sb->cursor_position = ch->size;
+				write(STDOUT_FILENO, sb->string, sb->size);
+				if(ch->prev != NULL) ch = ch->prev;
+			break;
+			default:
+				if(ch->next == NULL) break;
+				ch = ch->next;
+				memcpy(sb->string, ch->string, ch->size);
+				sb->size = ch->size;
+				write(STDOUT_FILENO, sb->string, sb->size);
+			break;
+		}
+	}
+	return ch;
 }

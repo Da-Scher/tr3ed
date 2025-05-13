@@ -49,5 +49,6 @@ void move_cursor(str_buffer* sb, int8_t d);
 void add_edit(nfd* fd, str_buffer* sb, uint8_t append, uint8_t line);
 void delete_line(nfd* fd, uint8_t line);
 State check_state(uint8_t* string);
+cmd_hist* move_history_pointer(cmd_hist* ch, str_buffer* sb, uint8_t up);
 
 #endif
