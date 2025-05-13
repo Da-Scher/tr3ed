@@ -14,64 +14,51 @@ void input_loop(nfd* fd) {
 	while(read(STDIN_FILENO, &c, 1) == 1) {
 		switch(state) {
 			case NORMAL:
-				// detected an escape key
-				if(c=='\x1b') state = ESC;
-				// detected an enter key
-				else if(c=='\x0a') {
-					write(STDOUT_FILENO, &c, 1);
-					// add the line to the command history
-					ch = add_command_to_history(sb, ch);
-					State result = process_line(sb);
-					clear_line(sb);
-					if(result == QUIT) {
-						return;
-					}
-					else if(result == BAD) {
-						write(STDOUT_FILENO, "?\n", 3);
-					}
-					else if(result == EDIT_APPEND) {
+				switch(c) {
+					// detected an escape key
+					case '\x1b':
+						state = ESC;
+					break;
+					// detected an enter key
+					case '\x0a':
+						write(STDOUT_FILENO, &c, 1);
+						// add the line to the command history
+						ch = add_command_to_history(sb, ch);
+						State result = process_line(sb);
 						clear_line(sb);
-						add_edit(fd, sb, 1, sb->line_position);
-					}
-					else if(result == EDIT_INSERT) {
-						clear_line(sb);
-						add_edit(fd, sb, 0, sb->line_position);
-					}
-					else if(result == DELETE_LINE) {
-						clear_line(sb);
-						delete_line(fd, sb->line_position);
-					}
-					else {
-						memset(sb->string, 0, sb->size);
-
-					}
-				}
-				// detected a backspace key
-				else if(c=='\x7f') {
-					write(STDOUT_FILENO, "\x1b[D\x1b[P", 6);
-					if(sb->cursor_position > 0) {
-						memmove(sb->string + sb->cursor_position - 1, sb->string + sb->cursor_position, sb->size - sb->cursor_position);
-						sb->size--;
-						sb->cursor_position--;
-					}
-				}
-				// detected a regular key
-				else {
-					if(sb->cursor_position == sb->array_size) {
-						uint8_t* cache = malloc(sizeof(uint8_t) * sb->size + 1);
-						memcpy(cache, sb->string, sb->size);
-						memmove(cache + sb->cursor_position, cache + sb->cursor_position - 1, sb->size + 1 - sb->cursor_position);
-						free(sb->string);
-						sb->string = cache;
-					}
-					else {
-						memmove(sb->string + sb->cursor_position, sb->string + sb->cursor_position - 1, sb->size-sb->cursor_position+1);
-					}
-					sb->string[sb->cursor_position++] = c;
-					sb->size++;
-					sb->array_size++;
-					write(STDOUT_FILENO, &c, 1);
-
+						switch(result) {
+							case QUIT:
+								return;
+							break;
+							case BAD:
+								write(STDOUT_FILENO, "?\n", 3);
+							break;
+							case EDIT_APPEND:
+								add_edit(fd, sb, 1, sb->line_position);
+							break;
+							case EDIT_INSERT:
+								add_edit(fd, sb, 0, sb->line_position);
+							break;
+							case DELETE_LINE:
+								delete_line(fd, sb->line_position);
+							break;
+						}
+					break;
+					// detected a backspace key
+					case '\x7f':
+						write(STDOUT_FILENO, "\x1b[D\x1b[P", 6);
+						if(sb->cursor_position > 0) {
+							memmove(sb->string + sb->cursor_position - 1, sb->string + sb->cursor_position, sb->size - sb->cursor_position);
+							sb->size--;
+							sb->cursor_position--;
+						}
+					break;
+					// detected a regular key
+					default:
+						if(add_to_str_buffer(c, sb) == 1) {
+							write(STDOUT_FILENO, &c, 1);
+						}
+					break;
 				}
 				break;
 			case ESC:
@@ -79,43 +66,27 @@ void input_loop(nfd* fd) {
 				else state = NORMAL;
 				break;
 			case ESC_BRACKET:
-				if(c=='A') {
-					// printf("Insert arrow-up code here.\n");
-					// TODO: remember the non-inputted buffer so that we can use it again if necessary.
-					if(ch != NULL) {
-						clear_line(sb);
-						memcpy(sb->string, ch->string, ch->size);
-						sb->size = ch->size;
-						sb->cursor_position = ch->size;
-						write(STDOUT_FILENO, sb->string, sb->size);
-						if(ch->prev != NULL) ch = ch->prev;
-					}
-				}
-				else if(c=='B') { 
-					//printf("Insert arrow-down code here.\n");
-					if(ch->next != NULL) {
-						ch = ch->next;
-						clear_line(sb);
-						memcpy(sb->string, ch->string, ch->size);
-						sb->size = ch->size;
-						write(STDOUT_FILENO, sb->string, sb->size);
-					}
-					else if(ch == NULL) {
-						clear_line(sb);
-					}
-				}
-				else if(c=='C') {
-					//printf("Insert arrow-right code here.\n");
-					move_cursor(sb, 1);
-				}
-				else if(c=='D') {
-					//printf("Insert arrow-left code here.\n");
-					move_cursor(sb, -1);
-				}
-				state = NORMAL;
+				clear_line(sb);
+				switch(c) {
+				case 'A':
+					ch = move_history_pointer(ch, sb, 1);
 				break;
+				case 'B':
+					ch = move_history_pointer(ch, sb, 0);
+				break;
+				case 'C':
+					move_cursor(sb, 1);
+				break;
+				case 'D':
+					move_cursor(sb, -1);
+				break;
+				default:
+				break;
+			}
+			state = NORMAL;
+			break;
 		}
-	}	
+	}
 }
 
 State process_line(str_buffer* sb) {
@@ -125,10 +96,6 @@ State process_line(str_buffer* sb) {
 	uint8_t c;
 	uint8_t s[100];
 	uint8_t leftover[100];
-	
-	// why loop here? because in `ed` there should be support for common
-	// command sequences, like 'wq', or 'id' for insert at, delete other line. etc
-	// change current line
 	if(sscanf(sb->string, "%d%99[^\n]", &d2, leftover) == 1) {
 		sb->line_position = d2;
 		return NORMAL;
@@ -278,4 +245,28 @@ void delete_line(nfd* fd, uint8_t line) {
 	while(next != NULL) {
 		next = curr->line > line ? curr->r : curr->r;
 	}
+}
+
+cmd_hist* move_history_pointer(cmd_hist* ch, str_buffer* sb, uint8_t up) {
+	// TODO: remember the non-inputted buffer so that we can use it again if necessary.
+	clear_line(sb);
+	if(ch != NULL) {
+		switch(up) {
+			case 1:
+				memcpy(sb->string, ch->string, ch->size);
+				sb->size = ch->size;
+				sb->cursor_position = ch->size;
+				write(STDOUT_FILENO, sb->string, sb->size);
+				if(ch->prev != NULL) ch = ch->prev;
+			break;
+			default:
+				if(ch->next == NULL) break;
+				ch = ch->next;
+				memcpy(sb->string, ch->string, ch->size);
+				sb->size = ch->size;
+				write(STDOUT_FILENO, sb->string, sb->size);
+			break;
+		}
+	}
+	return ch;
 }
