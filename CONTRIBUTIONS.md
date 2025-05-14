@@ -24,3 +24,10 @@ Thank you for contributing! I welcome contributions from everyone. However, to e
 - Reference the issue again using `Fixes #<issue-number>` or `Closes #<issue-number>`.
 - Make sure you mark elements of the **Acceptance Criteria** that are completed. If some or all elements are not completed, tell us why and why you think the PR should go ahead anyway.
 - Make sure that your code follows our coding style.
+
+## :checkered_flag: Milestones
+
+**Milestone Title and Description Example**
+User Interaction  
+
+At the end of this milestone, a user will have an interface allowing them to make edits to a buffer. There will be commands that moves the user from line to line, change a line, add a line after the current line, before the current line, etc.
