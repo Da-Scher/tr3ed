@@ -26,6 +26,13 @@ Thank you for contributing! I welcome contributions from everyone. However, to e
 - Make sure that your code follows our coding style.
 
 ## :checkered_flag: Milestones
+There will be a small few adding milestones, but there are opportunities to influence the creation of one via feature requests. However, because the project is tracking big feature development with milestones, there should be a style guide for how they look.
+
+**1. Pick a Very Short and Descriptive Name for the Title**
+- The title should convey what is being added in the fewest words possible.
+
+**2. Describe What Will be Changed When Milestone is Complete**
+- The description should focus on what will be different about the application after the milestone is complete.
 
 **Milestone Title and Description Example**
 User Interaction  
