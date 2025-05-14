@@ -25,14 +25,16 @@ Thank you for contributing! I welcome contributions from everyone. However, to e
 - Make sure you mark elements of the **Acceptance Criteria** that are completed. If some or all elements are not completed, tell us why and why you think the PR should go ahead anyway.
 - Make sure that your code follows our coding style.
 
-**Issue Example**
+**Issue Example**  
 \# :art: Feature Request: Read From Standard In Buffer
 Problem Statement  
 \-\-  
 The user application does not read the users input. There should be a system in place that can take keystrokes and use them to manipulate the line buffer of the file. Not only could this be used for line changes, but also to read interactive commands: like arrow-key up loads the previous command into standard in, etcetera.  
+
 Proposed Solution  
 \-\-  
 Using `read()` from `unistd.h`, check the last character. If its an interactive character, then do a special command and display changes to stdout. If its not, then add it as a plain character to a separate string buffer and display changes to stdout. I am anticipating that changing stdout from the first message, so a `display_history` function is needed to change what is displayed in the input area.
+
 Acceptance Criteria  
 \-\-  
 \- [ ] Create `input` header and c files.
